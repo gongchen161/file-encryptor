@@ -20,7 +20,7 @@ func TestEncryptionDecryption(t *testing.T) {
 		t.Error("Unexpected decryption error", err)
 	}
 
-	if (string)(decryptedTextByte) == expectedResult {
+	if (string)(decryptedTextByte) != expectedResult {
 		t.Error("Incorrect results.\nExpected:", expectedResult, "\nActual:  ", (string)(decryptedTextByte))
 	}
 
