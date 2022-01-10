@@ -12,11 +12,15 @@ func main() {
 
 		password, ok := flags["-p"]
 		if !ok {
+			fmt.Println("Missing password. Please add -p")
+			displayHelp()
 			return
 		}
 
 		filename, ok := flags["-file"]
 		if !ok {
+			fmt.Println("Missing encryption file. Please add -file")
+			displayHelp()
 			return
 		}
 
@@ -31,11 +35,15 @@ func main() {
 	} else if os.Args[1] == "decrypt" {
 		password, ok := flags["-p"]
 		if !ok {
+			fmt.Println("Missing password. Please add -p")
+			displayHelp()
 			return
 		}
 
 		cipherFilename, ok := flags["-cipherfile"]
 		if !ok {
+			fmt.Println("Missing cipher filename. please add -cipherfile")
+			displayHelp()
 			return
 		}
 
@@ -44,11 +52,14 @@ func main() {
 
 		DecryptFile(cipherFilename, password, outputFilename)
 	} else {
+		fmt.Println("Invalid flags")
 		displayHelp()
 	}
 }
 
 func displayHelp() {
+	fmt.Println()
+	fmt.Println("-----------------------------------------------------------------")
 	fmt.Println("This is a tool to encrypt & decrypt a file")
 	fmt.Println()
 
