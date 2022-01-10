@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-const FILE_CONTENT = "This is a plain text for testing"
+const FILE_CONTENT = "This is a plain text file content for testing"
 const PASSWORD = "PASSWORD_TO_BE_HASHED_IN_SHA256"
 
 func TestCorrectEncryptionDecryption(t *testing.T) {
@@ -49,6 +49,28 @@ func TestBadHashPasswordInDecryption(t *testing.T) {
 
 	if err == nil {
 		t.Error("Error should not be nil. Wrong password used in decryption")
+	}
+
+}
+
+func TestCorruptedEncryptionInDecryption(t *testing.T) {
+
+	plainFileContentByte := ([]byte)(FILE_CONTENT)
+	hashedPasswordByte := sha256.Sum256([]byte(PASSWORD))
+
+	encryptedTextByte, err := getCipherText(plainFileContentByte, hashedPasswordByte[:])
+
+	if err != nil {
+		t.Error("Unexpected encryption error", err)
+	}
+	// corrupt the encrypted content
+	encryptedTextByte[0]++
+	encryptedTextByte[1]--
+
+	_, err = getPlainText(encryptedTextByte, hashedPasswordByte[:])
+
+	if err == nil {
+		t.Error("Error should not be nil. Corrupted encryption content")
 	}
 
 }
