@@ -35,7 +35,7 @@ func getCipherText(fileContent []byte, hashedPassword []byte) ([]byte, error) {
 func EncryptFile(filename string, password string, outputFilename string) {
 	defer func() {
 		if err := recover(); err != nil {
-			fmt.Println("Unexpected error", err)
+			fmt.Println("Unexpected error in EncryptFile", err)
 		}
 	}()
 	fmt.Println("Start encrypting " + filename)
@@ -83,6 +83,12 @@ func getPlainText(cipherFileContent []byte, hashedPassword []byte) ([]byte, erro
 }
 
 func DecryptFile(cipherFilename string, password string, outputFilename string) {
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Println("Unexpected error in DecryptFile", err)
+		}
+	}()
+
 	fmt.Println("Start decrypting " + cipherFilename)
 	cipherFileContent, err := ioutil.ReadFile(cipherFilename)
 
