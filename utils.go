@@ -15,7 +15,6 @@ import (
 const FILENAME_BLOCK_SIZE = 128
 
 func getCipherText(fileContent []byte, hashedPassword []byte) ([]byte, error) {
-	// store and encrypt the filename
 
 	aesCipher, err := aes.NewCipher(hashedPassword)
 
@@ -97,6 +96,7 @@ func DecryptFile(cipherFilename string, password string, outputFilename string) 
 
 	if err != nil {
 		fmt.Println("ERROR " + err.Error())
+		return
 	}
 
 	plainTextSize := len(plainText) - FILENAME_BLOCK_SIZE

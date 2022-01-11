@@ -74,3 +74,16 @@ func TestCorruptedEncryptionInDecryption(t *testing.T) {
 	}
 
 }
+
+func TestDecryptPlaintext(t *testing.T) {
+
+	plainFileContentByte := ([]byte)(FILE_CONTENT)
+	hashedPasswordByte := sha256.Sum256([]byte(PASSWORD))
+
+	_, err := getPlainText(plainFileContentByte, hashedPasswordByte[:])
+
+	if err == nil {
+		t.Error("Error should not be nil. Cannot decrypt plaintext.")
+	}
+
+}
