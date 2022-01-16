@@ -13,6 +13,8 @@ import (
 )
 
 const FILENAME_BLOCK_SIZE = 128
+const ENCRYPT = "Encrypt"
+const DECRYPT = "Decrypt"
 
 func getCipherText(fileContent []byte, hashedPassword []byte) ([]byte, error) {
 
@@ -32,18 +34,20 @@ func getCipherText(fileContent []byte, hashedPassword []byte) ([]byte, error) {
 	return gcm.Seal(nonce, nonce, fileContent, nil), nil
 }
 
-func EncryptFile(filename string, password string, outputFilename string) {
+func EncryptFile(filename string, password string, outputFilename string) (res string, success bool) {
 	defer func() {
 		if err := recover(); err != nil {
-			fmt.Println("Unexpected error in EncryptFile", err)
+			res = "Unexpected error in EncryptFile"
+			success = false
 		}
 	}()
 	fmt.Println("Start encrypting " + filename)
 	fileContent, err := ioutil.ReadFile(filename)
 
 	if err != nil {
-		fmt.Println("Cannot read file " + filename)
-		return
+		res = "Cannot read file " + filename
+		success = false
+		return res, success
 	}
 
 	filenameByte := make([]byte, FILENAME_BLOCK_SIZE)
@@ -55,17 +59,21 @@ func EncryptFile(filename string, password string, outputFilename string) {
 	cipherText, err := getCipherText(fileContent, hashedPassword[:])
 
 	if err != nil {
-		fmt.Println("Encryption failed " + err.Error())
-		return
+		res = "Encryption failed " + err.Error()
+		success = false
+		return res, success
 	}
 
 	err = os.WriteFile(outputFilename, cipherText, 0644)
 
 	if err != nil {
-		fmt.Println("Cannot write to output file " + outputFilename)
+		res = "Cannot write to output file " + outputFilename + " : " + err.Error()
+		success = false
 	} else {
-		fmt.Println("Successfully encrypted " + filename + " to " + outputFilename)
+		res = "Successfully encrypted " + filename + " to " + outputFilename
+		success = true
 	}
+	return res, success
 }
 
 func getPlainText(cipherFileContent []byte, hashedPassword []byte) ([]byte, error) {
@@ -82,10 +90,11 @@ func getPlainText(cipherFileContent []byte, hashedPassword []byte) ([]byte, erro
 	return gcm.Open(nil, nonce, cipherText, nil)
 }
 
-func DecryptFile(cipherFilename string, password string, outputFilename string) {
+func DecryptFile(cipherFilename string, password string, outputFilename string) (res string, success bool) {
 	defer func() {
 		if err := recover(); err != nil {
-			fmt.Println("Unexpected error in DecryptFile", err)
+			res = "Unexpected error in DecryptFile"
+			success = false
 		}
 	}()
 
@@ -93,16 +102,18 @@ func DecryptFile(cipherFilename string, password string, outputFilename string) 
 	cipherFileContent, err := ioutil.ReadFile(cipherFilename)
 
 	if err != nil {
-		fmt.Println("Cannot read cipher file " + cipherFilename)
-		return
+		res = "Cannot read cipher file " + cipherFilename
+		success = false
+		return res, success
 	}
 	hashedPassword := sha256.Sum256([]byte(password))
 
 	plainText, err := getPlainText(cipherFileContent, hashedPassword[:])
 
 	if err != nil {
-		fmt.Println("ERROR " + err.Error())
-		return
+		res = "Decryption failed " + err.Error()
+		success = false
+		return res, success
 	}
 
 	plainTextSize := len(plainText) - FILENAME_BLOCK_SIZE
@@ -114,9 +125,12 @@ func DecryptFile(cipherFilename string, password string, outputFilename string) 
 	err = os.WriteFile(outputFilename, plainText[:plainTextSize], 0644)
 
 	if err != nil {
-		fmt.Println(err)
-		return
+		res = "Cannot write to output file " + outputFilename + " : " + err.Error()
+		success = false
 	} else {
-		fmt.Println("Successfully decrypted " + cipherFilename + " to " + outputFilename)
+		res = "Successfully decrypted " + cipherFilename + " to " + outputFilename
+		success = true
 	}
+
+	return res, success
 }
