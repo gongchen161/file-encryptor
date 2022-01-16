@@ -12,7 +12,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-
+    
+    - name: Install libxcursor-dev
+      run: sudo apt-get install libxcursor-dev
+      
     - name: Set up Go
       uses: actions/setup-go@v2
       with:
